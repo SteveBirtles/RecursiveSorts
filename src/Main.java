@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Main {
 
-    private final static int LIST_SIZE = 100000;
+    private final static int LIST_SIZE = 10000;
     private final static int MAX_NUMBER = 1000000;
 
     public static boolean check(List<Integer> list) {
@@ -92,8 +92,8 @@ public class Main {
 
     public static int doPartition(List<Integer> list, int left, int right) {
 
-        int middle = (left + right) / 2;
-        int pivot = list.get(middle);
+        int pivot = (left + right) / 2;
+        int value = list.get(pivot);
 
         int i = left - 1;
         int j = right + 1;
@@ -103,12 +103,12 @@ public class Main {
             do {
                 i += 1;
             }
-            while (list.get(i) < pivot);
+            while (list.get(i) < value);
 
             do {
                 j -= 1;
             }
-            while (list.get(j) > pivot);
+            while (list.get(j) > value);
 
             if (j <= i) {
                 return j;
