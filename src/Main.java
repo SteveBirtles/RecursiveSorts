@@ -4,10 +4,51 @@ import java.util.Random;
 
 public class Main {
 
-    private final static int LIST_SIZE = 1024;
-    private final static int MAX_NUMBER = 1000;
+    private final static int LIST_SIZE = 100000;
+    private final static int MAX_NUMBER = 1000000;
 
-    public static List<Integer> merge(List<Integer> list1, List<Integer> list2) {
+    public static boolean check(List<Integer> list) {
+        int x = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            if (x > list.get(i)) return false;
+            x = list.get(i);
+        }
+        return true;
+    }
+
+    public static List<Integer> bubbleSort(List<Integer> list) {
+
+        for (int i = 0; i < list.size()-1; i++) {
+
+            for (int j = i+1; j < list.size(); j++) {
+                if (list.get(i) > list.get(j)) {
+                    int temp = list.get(i);
+                    list.set(i, list.get(j));
+                    list.set(j, temp);
+                }
+            }
+        }
+        return list;
+
+    }
+
+    public static List<Integer> insertionSort(List<Integer> list) {
+
+        for (int i = 0; i < list.size(); i++) {
+
+            int j = i - 1;
+            int key = list.get(i);
+            while (j >= 0 && list.get(j) > key) {
+                list.set(j+1, list.get(j));
+                j--;
+            }
+            list.set(j+1, key);
+        }
+        return list;
+
+    }
+
+    public static List<Integer> doMerge(List<Integer> list1, List<Integer> list2) {
 
         List<Integer> result = new ArrayList<>();
 
@@ -45,11 +86,11 @@ public class Main {
             int middle = list.size() / 2;
             List<Integer> list1 = mergeSort(list.subList(0, middle));
             List<Integer> list2 = mergeSort(list.subList(middle, list.size()));
-            return merge(list1, list2);
+            return doMerge(list1, list2);
         }
     }
 
-    public static int partition(List<Integer> list, int left, int right) {
+    public static int doPartition(List<Integer> list, int left, int right) {
 
         int middle = (left + right) / 2;
         int pivot = list.get(middle);
@@ -83,15 +124,17 @@ public class Main {
 
     public static List<Integer> quickSort(List<Integer> list, int left, int right) {
 
-        if (left <= right) {
+        if (left >= right) {
             return list;
         }
         else {
 
-            int pivot = partition(list, left, right);
+            int pivot = doPartition(list, left, right);
             quickSort(list, left, pivot);
-            quickSort(list, left, pivot);
+            quickSort(list, pivot + 1, right);
         }
+
+        return list;
 
     }
 
@@ -106,25 +149,24 @@ public class Main {
             list.add(rnd.nextInt(MAX_NUMBER));
         }
 
-        List<Integer> mergeSortResult = mergeSort(list);
+        System.out.println("Starting...");
 
-        List<Integer> quickSortResult = quickSort(list);
+        if (!check(list)) System.out.println("Initial list confirmed, " + list.size() + " elements unsorted.");
 
-        for (int x: list) {
-            System.out.print(x + " ");
-        }
-        System.out.println();
+        long start = System.currentTimeMillis();
+        List<Integer> bubbleSortResult = bubbleSort(new ArrayList<>(list));
+        if (check(bubbleSortResult)) System.out.println("Bubble sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
-        for (int x: mergeSortResult) {
-            System.out.print(x + " ");
-        }
-        System.out.println();
+        start = System.currentTimeMillis();
+        List<Integer> insertionSortResult = insertionSort(new ArrayList<>(list));
+        if (check(insertionSortResult)) System.out.println("Insertion sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
-        for (int x: quickSortResult) {
-            System.out.print(x + " ");
-        }
-        System.out.println();
+        start = System.currentTimeMillis();
+        List<Integer> mergeSortResult = mergeSort(new ArrayList<>(list));
+        if (check(mergeSortResult)) System.out.println("Merge sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
-
+        start = System.currentTimeMillis();
+        List<Integer> quickSortResult = quickSort(new ArrayList<>(list), 0, list.size()-1);
+        if (check(quickSortResult)) System.out.println("Quick sort verified. " + (System.currentTimeMillis() - start) + "ms");
     }
 }
