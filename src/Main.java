@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Main {
 
-    private final static int LIST_SIZE = 50000;
+    private final static int LIST_SIZE = 40000;
     private final static int MAX_NUMBER = 100000;
 
     public static boolean check(List<Integer> list) {
@@ -258,5 +258,10 @@ public class Main {
         start = System.currentTimeMillis();
         List<Integer> recursiveQuicksortResult = recursiveQuicksort(new ArrayList<>(list), 0, list.size()-1);
         if (check(recursiveQuicksortResult)) System.out.println("Recursive quicksort verified. " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        Collections.sort(list);
+        if (check(list)) System.out.println("Java default sort verified. " + (System.currentTimeMillis() - start) + "ms");
+
     }
 }
