@@ -1,11 +1,11 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import javafx.util.Pair;
+
+import java.util.*;
 
 public class Main {
 
-    private final static int LIST_SIZE = 10000;
-    private final static int MAX_NUMBER = 1000000;
+    private final static int LIST_SIZE = 50000;
+    private final static int MAX_NUMBER = 100000;
 
     public static boolean check(List<Integer> list) {
         int x = list.get(0);
@@ -77,18 +77,56 @@ public class Main {
 
     }
 
-    public static List<Integer> mergeSort(List<Integer> list) {
+    public static List<Integer> recursiveMergeSort(List<Integer> list) {
 
         if (list.size() == 1) {
             return list;
         }
         else {
             int middle = list.size() / 2;
-            List<Integer> list1 = mergeSort(list.subList(0, middle));
-            List<Integer> list2 = mergeSort(list.subList(middle, list.size()));
+            List<Integer> list1 = recursiveMergeSort(list.subList(0, middle));
+            List<Integer> list2 = recursiveMergeSort(list.subList(middle, list.size()));
             return doMerge(list1, list2);
         }
     }
+
+    public static List<Integer> iterativeMergeSort(List<Integer> list) {
+
+        List<List<Integer>> listOfLists = new ArrayList<>();
+
+        for (Integer x : list) {
+            List<Integer> subList = new ArrayList<>();
+            subList.add(x);
+            listOfLists.add(subList);
+        }
+
+        while (listOfLists.size() > 1) {
+            List<Integer> alpha = listOfLists.get(listOfLists.size()-1);
+            listOfLists.remove(listOfLists.size()-1);
+            List<Integer> beta = listOfLists.get(listOfLists.size()-1);
+            listOfLists.remove(listOfLists.size()-1);
+
+            List<Integer> subList = new ArrayList<>();
+
+            while (alpha.size() > 0 && beta.size() > 0) {
+                if (alpha.get(alpha.size() - 1) > beta.get(beta.size() - 1)) {
+                    subList.add(0, alpha.get(alpha.size() - 1));
+                    alpha.remove(alpha.size() - 1);
+                } else {
+                    subList.add(0, beta.get(beta.size() - 1));
+                    beta.remove(beta.size() - 1);
+                }
+            }
+
+            subList.addAll(0, alpha);
+            subList.addAll(0, beta);
+
+            listOfLists.add(0, subList);
+        }
+
+        return listOfLists.get(0);
+    }
+
 
     public static int doPartition(List<Integer> list, int left, int right) {
 
@@ -122,18 +160,60 @@ public class Main {
     }
 
 
-    public static List<Integer> quickSort(List<Integer> list, int left, int right) {
+    public static List<Integer> recursiveQuicksort(List<Integer> list, int left, int right) {
 
         if (left >= right) {
             return list;
-        }
-        else {
+        } else {
 
             int pivot = doPartition(list, left, right);
-            quickSort(list, left, pivot);
-            quickSort(list, pivot + 1, right);
+            recursiveQuicksort(list, left, pivot);
+            recursiveQuicksort(list, pivot + 1, right);
         }
 
+        return list;
+
+    }
+
+    public static List<Integer> iterativeQuicksort(List<Integer> list) {
+
+        Stack<Integer> leftStack = new Stack<>();
+        leftStack.push(0);
+        Stack<Integer> rightStack = new Stack<>();
+        rightStack.push(list.size() - 1);
+
+        while (leftStack.size() > 0) {
+            int left = leftStack.pop();
+            int right = rightStack.pop();
+
+            int wall = left;
+            int pivot = list.get(right);
+
+            for (int cursor = left; cursor < right; cursor++) {
+                if (list.get(cursor) < pivot) {
+
+                    int temp = list.get(cursor);
+                    list.set(cursor, list.get(wall));
+                    list.set(wall, temp);
+
+                    wall++;
+                }
+            }
+
+            int temp = list.get(right);
+            list.set(right, list.get(wall));
+            list.set(wall, temp);
+
+            if (wall - 1 > left) {
+                leftStack.push(left);
+                rightStack.push(wall - 1);
+            }
+
+            if (wall + 1 < right) {
+                leftStack.push(wall + 1);
+                rightStack.push(right);
+            }
+        }
         return list;
 
     }
@@ -153,7 +233,9 @@ public class Main {
 
         if (!check(list)) System.out.println("Initial list confirmed, " + list.size() + " elements unsorted.");
 
-        long start = System.currentTimeMillis();
+        long start;
+
+        start = System.currentTimeMillis();
         List<Integer> bubbleSortResult = bubbleSort(new ArrayList<>(list));
         if (check(bubbleSortResult)) System.out.println("Bubble sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
@@ -162,11 +244,19 @@ public class Main {
         if (check(insertionSortResult)) System.out.println("Insertion sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
         start = System.currentTimeMillis();
-        List<Integer> mergeSortResult = mergeSort(new ArrayList<>(list));
-        if (check(mergeSortResult)) System.out.println("Merge sort verified. " + (System.currentTimeMillis() - start) + "ms");
+        List<Integer> iterativeMergeSortResult = iterativeMergeSort(new ArrayList<>(list));
+        if (check(iterativeMergeSortResult)) System.out.println("Iterative merge sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
         start = System.currentTimeMillis();
-        List<Integer> quickSortResult = quickSort(new ArrayList<>(list), 0, list.size()-1);
-        if (check(quickSortResult)) System.out.println("Quick sort verified. " + (System.currentTimeMillis() - start) + "ms");
+        List<Integer> recursiveMergeSortResult = recursiveMergeSort(new ArrayList<>(list));
+        if (check(recursiveMergeSortResult)) System.out.println("Recursive merge sort verified. " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        List<Integer> iterativeQuicksortResult = iterativeQuicksort(new ArrayList<>(list));
+        if (check(iterativeQuicksortResult)) System.out.println("Iterative quicksort verified. " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        List<Integer> recursiveQuicksortResult = recursiveQuicksort(new ArrayList<>(list), 0, list.size()-1);
+        if (check(recursiveQuicksortResult)) System.out.println("Recursive quicksort verified. " + (System.currentTimeMillis() - start) + "ms");
     }
 }
