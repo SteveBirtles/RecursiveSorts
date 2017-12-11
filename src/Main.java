@@ -1,5 +1,3 @@
-import javafx.util.Pair;
-
 import java.util.*;
 
 public class Main {
@@ -18,15 +16,32 @@ public class Main {
 
     public static List<Integer> bubbleSort(List<Integer> list) {
 
-        for (int i = 0; i < list.size()-1; i++) {
-
-            for (int j = i+1; j < list.size(); j++) {
-                if (list.get(i) > list.get(j)) {
-                    int temp = list.get(i);
-                    list.set(i, list.get(j));
-                    list.set(j, temp);
+        for (int i = 1; i < list.size(); i++) {
+            for (int j = 0; j < list.size()-1; j++) {
+                if (list.get(j+1) < list.get(j)) {
+                    int temp = list.get(j);
+                    list.set(j, list.get(j+1));
+                    list.set(j+1, temp);
                 }
             }
+        }
+        return list;
+
+    }
+
+    public static List<Integer> optimisedBubbleSort(List<Integer> list) {
+
+        for (int i = 1; i < list.size(); i++) {
+            boolean swapped = false;
+            for (int j = 0; j < list.size()-1; j++) {
+                if (list.get(j+1) < list.get(j)) {
+                    int temp = list.get(j);
+                    list.set(j, list.get(j+1));
+                    list.set(j+1, temp);
+                    swapped = true;
+                }
+            }
+            if (!swapped) break;
         }
         return list;
 
@@ -46,6 +61,43 @@ public class Main {
         }
         return list;
 
+    }
+
+    public static List<Integer> iterativeMergeSort(List<Integer> list) {
+
+        List<List<Integer>> listOfLists = new ArrayList<>();
+
+        for (Integer x : list) {
+            List<Integer> subList = new ArrayList<>();
+            subList.add(x);
+            listOfLists.add(subList);
+        }
+
+        while (listOfLists.size() > 1) {
+            List<Integer> alpha = listOfLists.get(listOfLists.size()-1);
+            listOfLists.remove(listOfLists.size()-1);
+            List<Integer> beta = listOfLists.get(listOfLists.size()-1);
+            listOfLists.remove(listOfLists.size()-1);
+
+            List<Integer> subList = new ArrayList<>();
+
+            while (alpha.size() > 0 && beta.size() > 0) {
+                if (alpha.get(alpha.size() - 1) > beta.get(beta.size() - 1)) {
+                    subList.add(0, alpha.get(alpha.size() - 1));
+                    alpha.remove(alpha.size() - 1);
+                } else {
+                    subList.add(0, beta.get(beta.size() - 1));
+                    beta.remove(beta.size() - 1);
+                }
+            }
+
+            subList.addAll(0, alpha);
+            subList.addAll(0, beta);
+
+            listOfLists.add(0, subList);
+        }
+
+        return listOfLists.get(0);
     }
 
     public static List<Integer> doMerge(List<Integer> list1, List<Integer> list2) {
@@ -90,42 +142,7 @@ public class Main {
         }
     }
 
-    public static List<Integer> iterativeMergeSort(List<Integer> list) {
 
-        List<List<Integer>> listOfLists = new ArrayList<>();
-
-        for (Integer x : list) {
-            List<Integer> subList = new ArrayList<>();
-            subList.add(x);
-            listOfLists.add(subList);
-        }
-
-        while (listOfLists.size() > 1) {
-            List<Integer> alpha = listOfLists.get(listOfLists.size()-1);
-            listOfLists.remove(listOfLists.size()-1);
-            List<Integer> beta = listOfLists.get(listOfLists.size()-1);
-            listOfLists.remove(listOfLists.size()-1);
-
-            List<Integer> subList = new ArrayList<>();
-
-            while (alpha.size() > 0 && beta.size() > 0) {
-                if (alpha.get(alpha.size() - 1) > beta.get(beta.size() - 1)) {
-                    subList.add(0, alpha.get(alpha.size() - 1));
-                    alpha.remove(alpha.size() - 1);
-                } else {
-                    subList.add(0, beta.get(beta.size() - 1));
-                    beta.remove(beta.size() - 1);
-                }
-            }
-
-            subList.addAll(0, alpha);
-            subList.addAll(0, beta);
-
-            listOfLists.add(0, subList);
-        }
-
-        return listOfLists.get(0);
-    }
 
 
     public static int doPartition(List<Integer> list, int left, int right) {
@@ -238,6 +255,10 @@ public class Main {
         start = System.currentTimeMillis();
         List<Integer> bubbleSortResult = bubbleSort(new ArrayList<>(list));
         if (check(bubbleSortResult)) System.out.println("Bubble sort verified. " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        List<Integer> optimisedBubbleSortResult = optimisedBubbleSort(new ArrayList<>(list));
+        if (check(optimisedBubbleSortResult)) System.out.println("Optimised bubble sort verified. " + (System.currentTimeMillis() - start) + "ms");
 
         start = System.currentTimeMillis();
         List<Integer> insertionSortResult = insertionSort(new ArrayList<>(list));
